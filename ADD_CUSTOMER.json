@@ -1,0 +1,325 @@
+{
+  "name": "ADD_CUSTOMER",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "zoho-payment",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -800,
+        -48
+      ],
+      "id": "2a876a3f-8646-45e9-abbc-879cfdcfc89f",
+      "name": "Webhook",
+      "webhookId": "05c5516f-1f47-41fb-b90a-73efd0505e9f"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "313d1a6b-5b8d-808d-a130-c1a6c52d8026",
+          "mode": "list",
+          "cachedResultName": "brides",
+          "cachedResultUrl": "https://www.notion.so/313d1a6b5b8d808da130c1a6c52d8026"
+        },
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Bride|title",
+              "condition": "equals",
+              "titleValue": "={{ $json.body.payload.payment.customer_name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -352,
+        16
+      ],
+      "id": "4f9704b3-9b2b-43cd-9b6c-4ee40601325f",
+      "name": "Get many database pages",
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionApi": {
+          "id": "5KwTNwc4hacTPiee",
+          "name": "sidnotion"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "313d1a6b-5b8d-808d-a130-c1a6c52d8026",
+          "mode": "list",
+          "cachedResultName": "brides",
+          "cachedResultUrl": "https://www.notion.so/313d1a6b5b8d808da130c1a6c52d8026"
+        },
+        "title": "={{ $('Webhook').item.json.body.payload.payment.customer_name }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Bride|title",
+              "title": "={{ $('Webhook').item.json.body.payload.payment.customer_name }}"
+            },
+            {
+              "key": "5K paid on|date",
+              "date": "={{ $('Webhook').item.json.body.payload.payment.date }}"
+            },
+            {
+              "key": "Ph No.|phone_number",
+              "phoneValue": "={{ $('Webhook').item.json.body.customer_mobile }}"
+            },
+            {
+              "key": "Wedding Date|date",
+              "date": "={{ $('HTTP Request').item.json.contact.cf_wedding_date_unformatted }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        0
+      ],
+      "id": "29048186-7326-473d-86d3-60c8d3722a44",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "5KwTNwc4hacTPiee",
+          "name": "sidnotion"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Checks if the Payment amount is GREATER THAN OR EQUAL 5000",
+        "height": 128,
+        "width": 150,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "dbbf5b87-6d74-4d21-891c-ec0c7fc85592",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Searches if the customer is already present in the database",
+        "height": 96,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        -96
+      ],
+      "typeVersion": 1,
+      "id": "51793f7d-6755-4351-9b40-0ffdfc37c1eb",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a597e4d3-edee-45e7-a9d2-e572fde4980b",
+              "leftValue": "={{ $json.body.payload.payment.amount }}",
+              "rightValue": 5000,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -576,
+        -208
+      ],
+      "id": "af11660b-c391-4c9e-8713-28bdeebf1ef7",
+      "name": "Greater than 5K"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "31a806d5-ae3a-43c9-ba5f-ba54d25f36b3",
+              "leftValue": "={{ Object.keys($json).length }}\n",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -144,
+        -240
+      ],
+      "id": "af029da6-beed-426d-b521-4053a3f606e9",
+      "name": "cust_present_or_not"
+    },
+    {
+      "parameters": {
+        "content": "If absent proceeds to make a new entry in the database",
+        "height": 112,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "1d753cea-16c3-4d2e-9085-b283d0e02575",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.zohoapis.in/books/v3/contacts/{{$('Webhook').item.json.body.payload.payment.customer_id}}?organization_id=60018319834",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        80,
+        -272
+      ],
+      "id": "e279c13b-868b-496a-96c2-e944db325eb8",
+      "name": "HTTP Request",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "jSnVdI3ktV5ZMkmd",
+          "name": "zoho"
+        },
+        "zohoOAuth2Api": {
+          "id": "cV4fkUhloDkCW1Av",
+          "name": "Zoho account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Greater than 5K",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "cust_present_or_not",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Greater than 5K": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cust_present_or_not": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "90d650d2-5e26-42dd-8f5c-732639f07c9b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "64163608f28e5f1a79376a59505da1ce65f418dc7ce6fa264a819d289c87f1c8"
+  },
+  "id": "HelFxJmiiaGSquRW",
+  "tags": []
+}
